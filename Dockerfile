@@ -1,5 +1,5 @@
 # Gunakan image dasar golang alpine
-FROM golang:1.21.5-alpine
+FROM golang:1.22.4-alpine
 
 # Install dependencies
 RUN apk update && apk add --no-cache \
