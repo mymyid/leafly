@@ -87,5 +87,5 @@ func matToBase64(img gocv.Mat) (string, error) {
 
 type FaceDetect struct {
 	Nfaces    int    `json:"nfaces,omitempty" bson:"nfaces,omitempty"`
-	Base64Str string `json:"messages,omitempty" bson:"messages,omitempty"`
+	Base64Str string `json:"base64str,omitempty" bson:"base64str,omitempty"`
 }
