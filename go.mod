@@ -6,6 +6,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/pion/webrtc/v3 v3.2.40
+	gocv.io/x/gocv v0.36.1
 )
 
 require (
