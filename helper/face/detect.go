@@ -10,9 +10,9 @@ import (
 	"gocv.io/x/gocv"
 )
 
-func DetectandCropFace(base64Str *string) (nfaces int, err error) {
+func DetectandCropFace(msg *FaceDetect) (err error) {
 	// Decode base64 string
-	imgData, err := base64.StdEncoding.DecodeString(*base64Str)
+	imgData, err := base64.StdEncoding.DecodeString(msg.Base64Str)
 	if err != nil {
 		return
 	}
@@ -49,14 +49,14 @@ func DetectandCropFace(base64Str *string) (nfaces int, err error) {
 
 	// Deteksi wajah di gambar
 	rects := classifier.DetectMultiScale(img)
-	nfaces = len(rects)
+	msg.Nfaces = len(rects)
 
 	// Tandai setiap wajah yang terdeteksi dengan persegi panjang
 	for _, r := range rects {
 		gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
 	}
 
-	*base64Str, err = matToBase64(img)
+	msg.Base64Str, err = matToBase64(img)
 	if err != nil {
 		return
 	}

@@ -15,11 +15,11 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 
 	}
-	hasil, err := face.DetectandCropFace(&msg.Base64Str)
+	err = face.DetectandCropFace(&msg)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"nfaces": hasil, "base64str": hasil})
+	return ctx.Status(fiber.StatusOK).JSON(msg)
 }
 
 func FaceCount(ctx *fiber.Ctx) error {
@@ -31,9 +31,9 @@ func FaceCount(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 
 	}
-	hasil, err := face.DetectandCropFace(&msg.Base64Str)
+	err = face.DetectandCropFace(&msg)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"nfaces": hasil})
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"nfaces": msg.Nfaces})
 }
