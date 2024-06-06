@@ -10,9 +10,9 @@ import (
 	"gocv.io/x/gocv"
 )
 
-func DetectandCropFace(base64Str string) (fdetect FaceDetect, err error) {
+func DetectandCropFace(base64Str *string) (nfaces int, err error) {
 	// Decode base64 string
-	imgData, err := base64.StdEncoding.DecodeString(base64Str)
+	imgData, err := base64.StdEncoding.DecodeString(*base64Str)
 	if err != nil {
 		return
 	}
@@ -49,22 +49,17 @@ func DetectandCropFace(base64Str string) (fdetect FaceDetect, err error) {
 
 	// Deteksi wajah di gambar
 	rects := classifier.DetectMultiScale(img)
-	fdetect.Nfaces = len(rects)
+	nfaces = len(rects)
 
 	// Tandai setiap wajah yang terdeteksi dengan persegi panjang
 	for _, r := range rects {
 		gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
 	}
 
-	fdetect.Base64Str, err = matToBase64(img)
+	*base64Str, err = matToBase64(img)
 	if err != nil {
 		return
 	}
-
-	// Simpan hasil gambar dengan deteksi wajah ke file
-	// resultFile := "result.jpg"
-	// gocv.IMWrite(resultFile, img)
-	// fmt.Println("Result saved to", resultFile)
 	return
 }
 
@@ -85,7 +80,8 @@ func matToBase64(img gocv.Mat) (string, error) {
 	return base64Str, nil
 }
 
-type FaceDetect struct {
-	Nfaces    int    `json:"nfaces,omitempty" bson:"nfaces,omitempty"`
-	Base64Str string `json:"base64str,omitempty" bson:"base64str,omitempty"`
+func saveIMG(img gocv.Mat, resultFile string) bool {
+	// Simpan hasil gambar dengan deteksi wajah ke file
+	return gocv.IMWrite(resultFile, img)
+
 }
