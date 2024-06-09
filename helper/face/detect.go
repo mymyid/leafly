@@ -60,11 +60,13 @@ func DetectandCropFace(msg *FaceDetect) (buf *gocv.NativeByteBuffer, err error) 
 	defer face.Close()
 
 	// Encode gocv.Mat to byte slice
-	buf, err = gocv.IMEncode(".jpg", face)
+	buf, err = gocv.IMEncode(gocv.JPEGFileExt, face)
 	if err != nil {
 		return
 	}
 	defer buf.Close()
+	// Convert the buffer to a base64 string
+	msg.Base64Str = base64.StdEncoding.EncodeToString(buf.GetBytes())
 
 	return
 }
