@@ -1,14 +1,17 @@
 package controller
 
 import (
+	"fmt"
+	"leafly/config"
 	"leafly/helper/face"
+	"leafly/helper/ghupload"
 	"leafly/model"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func FaceDetect(ctx *fiber.Ctx) error {
-	var h model.Login
+	var h model.Secret
 	err := ctx.ReqHeaderParser(&h)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
@@ -18,25 +21,21 @@ func FaceDetect(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	err = face.DetectandCropFace(&msg)
+	buf, err := face.DetectandCropFace(&msg)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(msg)
-}
-
-func FaceCount(ctx *fiber.Ctx) error {
-
-	var msg face.FaceDetect
-	err := ctx.BodyParser(&msg)
-	if err != nil {
-
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-
-	}
-	err = face.DetectandCropFace(&msg)
+	// Create a multipart.FileHeader from the encoded byte slice
+	fileHeader, err := ghupload.CreateFileHeader(buf.GetBytes())
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"nfaces": msg.Nfaces})
+	// Call GithubUpload with the file header
+	content, response, err := ghupload.GithubUpload(config.GHCreds, fileHeader, "your-org", "your-repo", "path/to/uploaded/file.jpg", true)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	ret := fmt.Sprintf("Upload successful: %v, response: %v\n", content, response)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": ret})
 }

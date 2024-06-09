@@ -9,7 +9,7 @@ import (
 	"gocv.io/x/gocv"
 )
 
-func DetectandCropFace(msg *FaceDetect) (err error) {
+func DetectandCropFace(msg *FaceDetect) (buf *gocv.NativeByteBuffer, err error) {
 	// Decode base64 string
 	imgData, err := base64.StdEncoding.DecodeString(msg.Base64Str)
 	if err != nil {
@@ -42,7 +42,7 @@ func DetectandCropFace(msg *FaceDetect) (err error) {
 	defer classifier.Close()
 
 	if !classifier.Load("haarcascade_frontalface_default.xml") {
-		fmt.Println("Error loading cascade file")
+		err = errors.New("Error loading cascade file")
 		return
 	}
 
@@ -60,17 +60,12 @@ func DetectandCropFace(msg *FaceDetect) (err error) {
 	defer face.Close()
 
 	// Encode gocv.Mat to byte slice
-	buf, err := gocv.IMEncode(".jpg", face)
+	buf, err = gocv.IMEncode(".jpg", face)
 	if err != nil {
-		fmt.Println("Error encoding image to byte slice:", err)
 		return
 	}
 	defer buf.Close()
 
-	msg.Base64Str = base64.StdEncoding.EncodeToString(buf.GetBytes())
-	if err != nil {
-		return
-	}
 	return
 }
 
