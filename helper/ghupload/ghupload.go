@@ -1,9 +1,12 @@
 package ghupload
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"mime/multipart"
+	"net/textproto"
 
 	"github.com/google/go-github/v59/github"
 
@@ -52,4 +55,31 @@ func GithubUpload(ghcreds GHCreds, fileHeader *multipart.FileHeader, githubOrg s
 	}
 
 	return
+}
+
+func CreateFileHeader(fileContent []byte) (*multipart.FileHeader, error) {
+	var b bytes.Buffer
+	writer := multipart.NewWriter(&b)
+
+	part, err := writer.CreateFormFile("file", "face.jpg")
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err = io.Copy(part, bytes.NewReader(fileContent)); err != nil {
+		return nil, err
+	}
+	writer.Close()
+
+	header := make(textproto.MIMEHeader)
+	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", "face.jpg"))
+	header.Set("Content-Type", "image/jpeg")
+
+	fileHeader := &multipart.FileHeader{
+		Filename: "face.jpg",
+		Header:   header,
+		Size:     int64(len(fileContent)),
+	}
+
+	return fileHeader, nil
 }
