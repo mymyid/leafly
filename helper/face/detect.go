@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"image/color"
 	"os"
 
 	"gocv.io/x/gocv"
@@ -52,11 +51,23 @@ func DetectandCropFace(msg *FaceDetect) (err error) {
 	msg.Nfaces = len(rects)
 
 	// Tandai setiap wajah yang terdeteksi dengan persegi panjang
-	for _, r := range rects {
-		gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
-	}
+	//for _, r := range rects {
+	//	gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
+	//}
 
-	msg.Base64Str, err = matToBase64(img)
+	// Crop wajah pertama yang terdeteksi
+	face := img.Region(rects[0])
+	defer face.Close()
+
+	// Encode gocv.Mat to byte slice
+	buf, err := gocv.IMEncode(".jpg", face)
+	if err != nil {
+		fmt.Println("Error encoding image to byte slice:", err)
+		return
+	}
+	defer buf.Close()
+
+	msg.Base64Str = base64.StdEncoding.EncodeToString(buf.GetBytes())
 	if err != nil {
 		return
 	}
