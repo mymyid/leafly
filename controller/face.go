@@ -11,35 +11,49 @@ import (
 
 func FaceDetect(ctx *fiber.Ctx) error {
 	var h model.Secret
+	var body model.FaceInfo
 	err := ctx.ReqHeaderParser(&h)
 	if err != nil {
-		return ctx.Status(fiber.StatusEarlyHints).JSON(fiber.Map{"error": err.Error()})
+		body.Error = err.Error()
+		return ctx.Status(fiber.StatusEarlyHints).JSON(body)
 	}
 	if h.Secret != config.Secret {
-		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Secret Salah"})
+		body.Error = "Secret salah: " + err.Error()
+		return ctx.Status(fiber.StatusForbidden).JSON(body)
 	}
 	var msg face.FaceDetect
 	err = ctx.BodyParser(&msg)
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		body.Error = err.Error()
+		return ctx.Status(fiber.StatusBadRequest).JSON(body)
 	}
 	_, err = face.DetectandCropFace(&msg)
 	if err != nil {
-		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{"error": err.Error()})
+		body.Error = err.Error()
+		return ctx.Status(fiber.StatusConflict).JSON(body)
 	}
 	if msg.Nfaces == 0 {
-		return ctx.Status(fiber.StatusFailedDependency).JSON(fiber.Map{"error": "Tidak ditemukan muka"})
+		body.Error = "Tidak ditemukan muka"
+		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
 	if msg.Nfaces > 1 {
-		return ctx.Status(fiber.StatusFailedDependency).JSON(fiber.Map{"error": "Harus selfie tidak boleh ramean"})
+		body.Error = "Harus selfie tidak boleh ramean"
+		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
 	if config.GHCreds.GitHubAccessToken == "" {
-		return ctx.Status(fiber.StatusExpectationFailed).JSON(fiber.Map{"error": "access token tidak ada: " + config.GHCreds.GitHubAccessToken})
+		body.Error = "access token tidak ada: " + config.GHCreds.GitHubAccessToken
+		return ctx.Status(fiber.StatusExpectationFailed).JSON(body)
 	}
 	// Call GithubUpload with the file header
 	content, response, filehash, err := ghupload.GithubUploadJPG(config.GHCreds, msg.Base64Str, "mymyid", "face", msg.IDUser, false)
 	if err != nil {
-		return ctx.Status(fiber.StatusFailedDependency).JSON(fiber.Map{"error": err.Error()})
+		body.Error = err.Error()
+		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"commit": content.Commit.SHA, "remaining": response.Rate.Remaining, "filehash": filehash, "iduser": msg.IDUser})
+	body.Commit = *content.Commit.SHA
+	body.Remaining = response.Rate.Remaining
+	body.FileHash = filehash
+	body.PhoneNumber = msg.IDUser
+
+	return ctx.Status(fiber.StatusOK).JSON(body)
 }
