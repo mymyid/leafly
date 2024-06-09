@@ -1,21 +1,20 @@
 package ghupload
 
 import (
-	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
-	"io"
-	"mime/multipart"
-	"net/textproto"
 
 	"github.com/google/go-github/v59/github"
 
 	"golang.org/x/oauth2"
 )
 
-func GithubUpload(ghcreds GHCreds, fileContent []byte, githubOrg string, githubRepo string, pathFile string, replace bool) (content *github.RepositoryContentResponse, response *github.Response, err error) {
-	if fileContent == nil {
-		return nil, nil, fmt.Errorf("file content is empty")
+func GithubUpload(ghcreds GHCreds, base64Content string, githubOrg string, githubRepo string, pathFile string, replace bool) (content *github.RepositoryContentResponse, response *github.Response, err error) {
+	// Decode the base64 string to byte slice
+	fileContent, err := base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode base64 content: %w", err)
 	}
 
 	// Konfigurasi koneksi ke GitHub menggunakan token akses
@@ -47,34 +46,4 @@ func GithubUpload(ghcreds GHCreds, fileContent []byte, githubOrg string, githubR
 	}
 
 	return
-}
-
-func CreateFileHeader(fileContent []byte) (*multipart.FileHeader, error) {
-	var b bytes.Buffer
-	writer := multipart.NewWriter(&b)
-
-	part, err := writer.CreateFormFile("file", "face.jpg")
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err = io.Copy(part, bytes.NewReader(fileContent)); err != nil {
-		return nil, fmt.Errorf("error copying file content: %w", err)
-	}
-	// Close the multipart writer to write the ending boundary
-	if err = writer.Close(); err != nil {
-		return nil, fmt.Errorf("error closing multipart writer: %w", err)
-	}
-
-	// Construct the FileHeader
-	fileHeader := &multipart.FileHeader{
-		Filename: "face.jpg",
-		Header: textproto.MIMEHeader{
-			"Content-Disposition": {fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", "face.jpg")},
-			"Content-Type":        {"image/jpeg"},
-		},
-		Size: int64(len(fileContent)),
-	}
-
-	return fileHeader, nil
 }
