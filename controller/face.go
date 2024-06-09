@@ -25,13 +25,8 @@ func FaceDetect(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{"error": err.Error()})
 	}
-	// Create a multipart.FileHeader from the encoded byte slice
-	fileHeader, err := ghupload.CreateFileHeader(buf.GetBytes())
-	if err != nil {
-		return ctx.Status(fiber.StatusExpectationFailed).JSON(fiber.Map{"error": err.Error()})
-	}
 	// Call GithubUpload with the file header
-	content, response, err := ghupload.GithubUpload(config.GHCreds, fileHeader, "mymyid", "face", msg.IDUser+"/"+msg.IDFile+".jpg", true)
+	content, response, err := ghupload.GithubUpload(config.GHCreds, buf.GetBytes(), "mymyid", "face", msg.IDUser+"/"+msg.IDFile+".jpg", true)
 	if err != nil {
 		return ctx.Status(fiber.StatusFailedDependency).JSON(fiber.Map{"error": err.Error()})
 	}

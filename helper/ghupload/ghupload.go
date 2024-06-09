@@ -13,17 +13,9 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func GithubUpload(ghcreds GHCreds, fileHeader *multipart.FileHeader, githubOrg string, githubRepo string, pathFile string, replace bool) (content *github.RepositoryContentResponse, response *github.Response, err error) {
-	// Open the file
-	file, err := fileHeader.Open()
-	if err != nil {
-		return
-	}
-	defer file.Close()
-	// Read the file content
-	fileContent, err := io.ReadAll(file)
-	if err != nil {
-		return
+func GithubUpload(ghcreds GHCreds, fileContent []byte, githubOrg string, githubRepo string, pathFile string, replace bool) (content *github.RepositoryContentResponse, response *github.Response, err error) {
+	if fileContent == nil {
+		return nil, nil, fmt.Errorf("file content is empty")
 	}
 
 	// Konfigurasi koneksi ke GitHub menggunakan token akses
