@@ -13,7 +13,7 @@ var IPPort, Net = helper.GetAddress()
 var Secret = os.Getenv("SECRET")
 
 var Iteung = fiber.Config{
-	Prefork:       false,
+	Prefork:       true,
 	CaseSensitive: true,
 	StrictRouting: true,
 	ServerHeader:  "DoMyID",
