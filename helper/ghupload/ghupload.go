@@ -67,18 +67,21 @@ func CreateFileHeader(fileContent []byte) (*multipart.FileHeader, error) {
 	}
 
 	if _, err = io.Copy(part, bytes.NewReader(fileContent)); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error copying file content: %w", err)
 	}
-	writer.Close()
+	// Close the multipart writer to write the ending boundary
+	if err = writer.Close(); err != nil {
+		return nil, fmt.Errorf("error closing multipart writer: %w", err)
+	}
 
-	header := make(textproto.MIMEHeader)
-	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", "face.jpg"))
-	header.Set("Content-Type", "image/jpeg")
-
+	// Construct the FileHeader
 	fileHeader := &multipart.FileHeader{
 		Filename: "face.jpg",
-		Header:   header,
-		Size:     int64(len(fileContent)),
+		Header: textproto.MIMEHeader{
+			"Content-Disposition": {fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", "face.jpg")},
+			"Content-Type":        {"image/jpeg"},
+		},
+		Size: int64(len(fileContent)),
 	}
 
 	return fileHeader, nil
