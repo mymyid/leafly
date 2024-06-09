@@ -16,7 +16,7 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusEarlyHints).JSON(fiber.Map{"error": err.Error()})
 	}
 	if h.Secret != config.Secret {
-		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": err.Error()})
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Secret Salah"})
 	}
 	var msg face.FaceDetect
 	err = ctx.BodyParser(&msg)
