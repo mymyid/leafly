@@ -37,9 +37,9 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusExpectationFailed).JSON(fiber.Map{"error": "access token tidak ada: " + config.GHCreds.GitHubAccessToken})
 	}
 	// Call GithubUpload with the file header
-	content, response, err := ghupload.GithubUpload(config.GHCreds, msg.Base64Str, "mymyid", "face", msg.IDUser+"/"+msg.IDFile+".jpg", true)
+	content, response, filehash, err := ghupload.GithubUploadJPG(config.GHCreds, msg.Base64Str, "mymyid", "face", msg.IDUser, false)
 	if err != nil {
 		return ctx.Status(fiber.StatusFailedDependency).JSON(fiber.Map{"error": err.Error()})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"msg": content.Commit.SHA, "remaining": response.Rate.Remaining})
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"msg": content.Commit.SHA, "remaining": response.Rate.Remaining, "filehash": filehash})
 }
