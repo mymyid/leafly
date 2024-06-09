@@ -31,7 +31,7 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 	// Call GithubUpload with the file header
-	content, response, err := ghupload.GithubUpload(config.GHCreds, fileHeader, "your-org", "your-repo", "path/to/uploaded/file.jpg", true)
+	content, response, err := ghupload.GithubUpload(config.GHCreds, fileHeader, "mymyid", "face", msg.IDUser+msg.IDFile+".jpg", true)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
