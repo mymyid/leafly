@@ -33,12 +33,12 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusConflict).JSON(body)
 	}
 	if msg.Nfaces == 0 {
-		body.Error = "Mukanya ga kelihatan kak"
-		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
+		body.Error = "Mukanya ga kelihatan kak, coba pas pas in deh"
+		return ctx.Status(fiber.StatusGone).JSON(body)
 	}
 	if msg.Nfaces > 1 {
-		body.Error = "Harus selfie dong.... jangan foto keluarga apalagi foto prewed"
-		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
+		body.Error = "Harus foto selfie kak.... ga perlu sama yang lain apalagi sama mantan"
+		return ctx.Status(fiber.StatusMultipleChoices).JSON(body)
 	}
 	if config.GHCreds.GitHubAccessToken == "" {
 		body.Error = "access token tidak ada: " + config.GHCreds.GitHubAccessToken
