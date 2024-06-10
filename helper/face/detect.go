@@ -55,18 +55,20 @@ func DetectandCropFace(msg *FaceDetect) (buf *gocv.NativeByteBuffer, err error) 
 	//	gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
 	//}
 
-	// Crop wajah pertama yang terdeteksi
-	face := img.Region(rects[0])
-	defer face.Close()
+	if msg.Nfaces > 0 {
+		// Crop wajah pertama yang terdeteksi
+		face := img.Region(rects[0])
+		defer face.Close()
 
-	// Encode gocv.Mat to byte slice
-	buf, err = gocv.IMEncode(gocv.JPEGFileExt, face)
-	if err != nil {
-		return
+		// Encode gocv.Mat to byte slice
+		buf, err = gocv.IMEncode(gocv.JPEGFileExt, face)
+		if err != nil {
+			return
+		}
+		defer buf.Close()
+		// Convert the buffer to a base64 string
+		msg.Base64Str = base64.StdEncoding.EncodeToString(buf.GetBytes())
 	}
-	defer buf.Close()
-	// Convert the buffer to a base64 string
-	msg.Base64Str = base64.StdEncoding.EncodeToString(buf.GetBytes())
 
 	return
 }
