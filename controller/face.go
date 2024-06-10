@@ -33,11 +33,11 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusConflict).JSON(body)
 	}
 	if msg.Nfaces == 0 {
-		body.Error = "Tidak ditemukan muka"
+		body.Error = "Mukanya ga kelihatan kak"
 		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
 	if msg.Nfaces > 1 {
-		body.Error = "Harus selfie tidak boleh ramean"
+		body.Error = "Harus selfie dong.... bukan poto kelas"
 		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
 	if config.GHCreds.GitHubAccessToken == "" {
