@@ -50,6 +50,11 @@ func GithubUploadJPG(ghcreds GHCreds, base64Content string, githubOrg string, gi
 		content, response, err = client.Repositories.UpdateFile(ctx, githubOrg, githubRepo, pathFile, opts)
 		return
 	}
+	if err != nil {
+		err = fmt.Errorf("galat pada fungsi client.Repositories.CreateFile: %w", err)
+		return
+		//content, response, fileHash, fmt.Errorf("galat pada fungsi client.Repositories.CreateFile: %w", err)
+	}
 
 	return
 }
