@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"image/color"
 	"os"
 
 	"gocv.io/x/gocv"
@@ -50,12 +51,17 @@ func DetectandCropFace(msg *FaceDetect) (buf *gocv.NativeByteBuffer, err error) 
 	rects := classifier.DetectMultiScale(img)
 	msg.Nfaces = len(rects)
 
-	// Tandai setiap wajah yang terdeteksi dengan persegi panjang
-	//for _, r := range rects {
-	//	gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
-	//}
-
-	if msg.Nfaces > 0 {
+	if msg.Nfaces > 1 {
+		// Tandai setiap wajah yang terdeteksi dengan persegi panjang
+		for _, r := range rects {
+			gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
+		}
+		msg.Base64Str, err = matToBase64(img)
+		if err != nil {
+			return
+		}
+	}
+	if msg.Nfaces == 1 {
 		// Crop wajah pertama yang terdeteksi
 		face := img.Region(rects[0])
 		defer face.Close()
