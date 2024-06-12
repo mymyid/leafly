@@ -37,7 +37,8 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusGone).JSON(body)
 	}
 	if msg.Nfaces > 1 {
-		body.Error = "Harus foto selfie kak.... ga perlu sama yang lain apalagi sama mantan"
+		body.FileHash = msg.Base64Str
+		body.Error = "Kak coba di cek lagi ini di gambar detemukan banyak mukanya, tolong jangan cari muka kak"
 		return ctx.Status(fiber.StatusMultipleChoices).JSON(body)
 	}
 	if config.GHCreds.GitHubAccessToken == "" {
