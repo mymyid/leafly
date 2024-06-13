@@ -54,7 +54,7 @@ func DetectandCropFace(msg *FaceDetect) (buf *gocv.NativeByteBuffer, err error) 
 	if msg.Nfaces > 1 {
 		// Tandai setiap wajah yang terdeteksi dengan persegi panjang
 		for _, r := range rects {
-			gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 3)
+			gocv.Rectangle(&img, r, color.RGBA{0, 255, 0, 0}, 7)
 		}
 		msg.Base64Str, err = matToBase64(img)
 		if err != nil {
