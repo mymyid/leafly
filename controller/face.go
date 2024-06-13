@@ -38,7 +38,7 @@ func FaceDetect(ctx *fiber.Ctx) error {
 	}
 	if msg.Nfaces > 1 {
 		body.FileHash = msg.Base64Str
-		body.Error = "Kak coba di cek lagi ini di gambar detemukan banyak mukanya, tolong jangan cari muka kak"
+		body.Error = "Minta tolong tutupin dengan tangan atau benda atau barang. Pada bagian yang dikotakin selain daripada wajah kakak ya... Terus coba lagi ya kak... Makasih..."
 		return ctx.Status(fiber.StatusMultipleChoices).JSON(body)
 	}
 	if config.GHCreds.GitHubAccessToken == "" {
