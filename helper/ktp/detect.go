@@ -11,70 +11,77 @@ import (
 )
 
 func DetectandCropKTP(ktpdt *KTPProps) (buf *gocv.NativeByteBuffer, err error) {
-	// Dekode string base64 menjadi gambar
+	// Decode base64 string into gocv.Mat
 	img, err := base64ToMat(ktpdt.Base64Str)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("error decoding base64: %v", err)
 	}
 	defer img.Close()
 
-	// Proses gambar (deteksi KTP dan transformasi perspektif)
+	// Process image (detect KTP and perform perspective transformation)
 	processedImg, err := processImage(img)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("error processing image: %v", err)
 	}
 	defer processedImg.Close()
 
-	// Encode gocv.Mat to byte slice
+	// Encode gocv.Mat to byte slice (JPEG format)
 	buf, err = gocv.IMEncode(gocv.JPEGFileExt, processedImg)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("error encoding image to JPEG: %v", err)
 	}
 	defer buf.Close()
+
 	// Convert the buffer to a base64 string
 	ktpdt.Base64Str = base64.StdEncoding.EncodeToString(buf.GetBytes())
-	return
+
+	return buf, nil
 }
 
-// Fungsi untuk mendekode base64 menjadi gocv.Mat
+// Function to decode base64 string into gocv.Mat
 func base64ToMat(base64Str string) (gocv.Mat, error) {
 	data, err := base64.StdEncoding.DecodeString(base64Str)
 	if err != nil {
-		return gocv.NewMat(), err
+		return gocv.NewMat(), fmt.Errorf("error decoding base64: %v", err)
 	}
+
 	img, err := jpeg.Decode(bytes.NewReader(data))
 	if err != nil {
-		return gocv.NewMat(), err
+		return gocv.NewMat(), fmt.Errorf("error decoding JPEG: %v", err)
 	}
 
+	// Encode the image back to bytes buffer
 	buf := new(bytes.Buffer)
 	if err := jpeg.Encode(buf, img, nil); err != nil {
-		return gocv.NewMat(), err
+		return gocv.NewMat(), fmt.Errorf("error encoding JPEG: %v", err)
 	}
 
+	// Decode the encoded image into gocv.Mat
 	mat, err := gocv.IMDecode(buf.Bytes(), gocv.IMReadColor)
 	if err != nil {
-		return gocv.NewMat(), err
+		return gocv.NewMat(), fmt.Errorf("error decoding image into Mat: %v", err)
 	}
+
 	return mat, nil
 }
 
-// Fungsi untuk memproses gambar (deteksi KTP dan transformasi perspektif)
+// Function to process image (detect KTP and perform perspective transformation)
 func processImage(img gocv.Mat) (gocv.Mat, error) {
-	// Konversi ke grayscale
+	// Convert image to grayscale
 	gray := gocv.NewMat()
 	defer gray.Close()
 	gocv.CvtColor(img, &gray, gocv.ColorBGRToGray)
 
-	// Deteksi tepi menggunakan Canny
+	// Detect edges using Canny edge detection
 	edges := gocv.NewMat()
 	defer edges.Close()
 	gocv.Canny(gray, &edges, 50, 150)
 
-	// Temukan kontur
+	// Find contours in the edges
 	contours := gocv.FindContours(edges, gocv.RetrievalExternal, gocv.ChainApproxSimple)
+	defer contours.Close()
 
-	// Filter kontur berdasarkan ukuran dan bentuk
+	// Filter contours based on size and shape to find the largest rectangle
 	var largestContour gocv.PointVector
 	for i := 0; i < contours.Size(); i++ {
 		contour := contours.At(i)
@@ -83,40 +90,43 @@ func processImage(img gocv.Mat) (gocv.Mat, error) {
 			continue
 		}
 
-		// ApproxPolyDP untuk mendapatkan bentuk kontur yang lebih tepat
-		approx := gocv.ApproxPolyDP(contour, 0.02*gocv.ArcLength(contour, true), true)
+		// Approximate the contour to get a polygon with fewer vertices
+		epsilon := 0.02 * gocv.ArcLength(contour, true)
+		approx := gocv.ApproxPolyDP(contour, epsilon, true)
 		defer approx.Close()
+
+		// Check if the polygon is a quadrilateral (4 sides)
 		if approx.Size() == 4 {
 			largestContour = approx
 			break
 		}
 	}
 
-	// Jika kontur ditemukan
-	if largestContour.Size() == 4 {
-		// Urutkan titik berdasarkan posisi (Top-left, Top-right, Bottom-right, Bottom-left)
-		orderedPoints := orderPoints(largestContour)
-
-		// Tentukan titik tujuan untuk transformasi perspektif
-		dst := gocv.NewPointVectorFromPoints([]image.Point{
-			{0, 0},
-			{300, 0},
-			{300, 200},
-			{0, 200},
-		})
-
-		// Hitung matriks transformasi perspektif
-		src := gocv.NewPointVectorFromPoints(orderedPoints)
-		warpMat := gocv.GetPerspectiveTransform(src, dst)
-
-		// Terapkan transformasi perspektif
-		warped := gocv.NewMat()
-		gocv.WarpPerspective(img, &warped, warpMat, image.Point{300, 200})
-
-		return warped, nil
-	} else {
-		return gocv.NewMat(), fmt.Errorf("KTP tidak ditemukan!")
+	// Check if a valid contour was found
+	if largestContour.Size() != 4 {
+		return gocv.NewMat(), fmt.Errorf("no valid rectangle contour found")
 	}
+
+	// Order the vertices of the rectangle
+	orderedPoints := orderPoints(largestContour)
+
+	// Define destination points for perspective transformation
+	dst := gocv.NewPointVectorFromPoints([]image.Point{
+		{0, 0},
+		{300, 0},
+		{300, 200},
+		{0, 200},
+	})
+
+	// Calculate the perspective transform matrix
+	src := gocv.NewPointVectorFromPoints(orderedPoints)
+	warpMat := gocv.GetPerspectiveTransform(src, dst)
+
+	// Apply perspective transformation
+	warped := gocv.NewMat()
+	gocv.WarpPerspective(img, &warped, warpMat, image.Point{300, 200})
+
+	return warped, nil
 }
 
 // Fungsi untuk mengurutkan titik sudut (Top-left, Top-right, Bottom-right, Bottom-left)
