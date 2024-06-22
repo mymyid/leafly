@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
-	"log"
 
 	"gocv.io/x/gocv"
 )
@@ -15,14 +14,14 @@ func DetectandCropKTP(ktpdt *KTPProps) (buf *gocv.NativeByteBuffer, err error) {
 	// Dekode string base64 menjadi gambar
 	img, err := base64ToMat(ktpdt.Base64Str)
 	if err != nil {
-		log.Fatalf("Error decoding base64: %v", err)
+		return
 	}
 	defer img.Close()
 
 	// Proses gambar (deteksi KTP dan transformasi perspektif)
 	processedImg, err := processImage(img)
 	if err != nil {
-		log.Fatalf("Error processing image: %v", err)
+		return
 	}
 	defer processedImg.Close()
 
@@ -34,12 +33,6 @@ func DetectandCropKTP(ktpdt *KTPProps) (buf *gocv.NativeByteBuffer, err error) {
 	defer buf.Close()
 	// Convert the buffer to a base64 string
 	ktpdt.Base64Str = base64.StdEncoding.EncodeToString(buf.GetBytes())
-
-	// Tampilkan gambar hasil
-	//window := gocv.NewWindow("Processed Image")
-	//defer window.Close()
-	//window.IMShow(processedImg)
-	//window.WaitKey(0)
 	return
 }
 
