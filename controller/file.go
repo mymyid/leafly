@@ -34,14 +34,12 @@ func ArsipGambarLMSDesa(ctx *fiber.Ctx) error {
 		body.Error = "access token tidak ada: " + config.GHCreds.GitHubAccessToken
 		return ctx.Status(fiber.StatusExpectationFailed).JSON(body)
 	}
-	// Mendapatkan waktu saat ini
-	now := time.Now()
-
 	// Mendapatkan tahun, bulan, dan tanggal sebagai string
-	year := fmt.Sprintf("%d", now.Year())
-	month := fmt.Sprintf("%02d", int(now.Month()))
-	day := fmt.Sprintf("%02d", now.Day())
-	path := year + "/" + month + "/" + day
+	path, err := GetCurrentDatePathInGMT7()
+	if err != nil {
+		body.Error = err.Error()
+		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
+	}
 	// Call GithubUpload with the file header
 	content, response, _, err := ghupload.GithubUploadJPG(config.GHCreds, msg.Base64Str, "domyid", "lmsdesa", path, false)
 	if err != nil {
@@ -77,14 +75,12 @@ func ArsipFileLMSDesa(ctx *fiber.Ctx) error {
 		body.Error = "access token tidak ada: " + config.GHCreds.GitHubAccessToken
 		return ctx.Status(fiber.StatusExpectationFailed).JSON(body)
 	}
-	// Mendapatkan waktu saat ini
-	now := time.Now()
-
 	// Mendapatkan tahun, bulan, dan tanggal sebagai string
-	year := fmt.Sprintf("%d", now.Year())
-	month := fmt.Sprintf("%02d", int(now.Month()))
-	day := fmt.Sprintf("%02d", now.Day())
-	path := year + "/" + month + "/" + day
+	path, err := GetCurrentDatePathInGMT7()
+	if err != nil {
+		body.Error = err.Error()
+		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
+	}
 	// Call GithubUpload with the file header
 	content, response, _, err := ghupload.GithubUploadFile(config.GHCreds, msg.Base64Str, "domyid", "lmsdesa", path, filepath.Ext(msg.IDFile), false)
 	if err != nil {
@@ -96,4 +92,19 @@ func ArsipFileLMSDesa(ctx *fiber.Ctx) error {
 	body.FileHash = *content.Content.Path
 	body.PhoneNumber = msg.IDUser
 	return ctx.Status(fiber.StatusOK).JSON(body)
+}
+
+// Fungsi untuk mendapatkan tanggal dalam zona waktu GMT+7
+func GetCurrentDatePathInGMT7() (path string, err error) {
+	loc, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		return
+	}
+	now := time.Now().In(loc)
+
+	year := fmt.Sprintf("%d", now.Year())
+	month := fmt.Sprintf("%02d", int(now.Month()))
+	day := fmt.Sprintf("%02d", now.Day())
+	path = year + "/" + month + "/" + day
+	return
 }
