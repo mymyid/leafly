@@ -31,7 +31,6 @@ RUN go build -o face_detect .
 # Menambahkan swap
 RUN fallocate -l 512M /swapfile; \
 	chmod 0600 /swapfile; \
-	mkswap /swapfile; \
-    swapon /swapfile;
+	mkswap /swapfile;
 # Command untuk menjalankan aplikasi
 CMD ["./face_detect"]

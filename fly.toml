@@ -5,6 +5,7 @@
 
 app = "lea"
 primary_region = "sin"
+swap_size_mb = 512
 
 [build]
   dockerfile = "Dockerfile"
@@ -25,4 +26,3 @@ primary_region = "sin"
   cpu_kind = "shared"
   cpus = 1
   memory_mb = 256
-  swap_size_mb = 512
