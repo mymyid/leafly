@@ -15,4 +15,7 @@ func Web(page *fiber.App) {
 	page.Post("/face/detect", controller.FaceDetect)
 	page.Post("/ktp/detect", controller.KTPDetect)
 
+	page.Post("/arsip/gambar/lmsdesa", controller.ArsipGambarLMSDesa)
+	page.Post("/arsip/file/lmsdesa", controller.ArsipFileLMSDesa)
+
 }

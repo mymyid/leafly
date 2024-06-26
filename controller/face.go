@@ -18,7 +18,7 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusEarlyHints).JSON(body)
 	}
 	if h.Secret != config.Secret {
-		body.Error = "Secret salah: " + err.Error()
+		body.Error = "Secret salah "
 		return ctx.Status(fiber.StatusForbidden).JSON(body)
 	}
 	var msg face.FaceDetect

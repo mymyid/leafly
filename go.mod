@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/google/go-github/v59 v59.0.0
 	github.com/pion/webrtc/v3 v3.2.40
-	gocv.io/x/gocv v0.36.1
+	gocv.io/x/gocv v0.37.0
 	golang.org/x/oauth2 v0.21.0
 )
 
