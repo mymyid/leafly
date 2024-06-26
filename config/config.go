@@ -16,6 +16,7 @@ var Iteung = fiber.Config{
 	Prefork:       true,
 	CaseSensitive: true,
 	StrictRouting: true,
+	BodyLimit:     20 * 1024 * 1024, // 20MB in bytes
 	ServerHeader:  "DoMyID",
 	AppName:       "Domyikado",
 	Network:       Net,
