@@ -29,10 +29,9 @@ RUN go get -u -d gocv.io/x/gocv
 RUN go build -o face_detect .
 
 # Menambahkan swap
-RUN \
-	fallocate -l 512M /swapfile; \
+RUN fallocate -l 512M /swapfile; \
 	chmod 0600 /swapfile; \
-	mkswap /swapfile;
-    
+	mkswap /swapfile; \
+    swapon /swapfile;
 # Command untuk menjalankan aplikasi
 CMD ["./face_detect"]
