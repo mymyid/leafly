@@ -32,5 +32,6 @@ RUN go build -o face_detect .
 RUN fallocate -l 512M /swapfile; \
 	chmod 0600 /swapfile; \
 	mkswap /swapfile;
+# buka manual ke ssh vm ketik: swapon /swapfile
 # Command untuk menjalankan aplikasi
 CMD ["./face_detect"]
