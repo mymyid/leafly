@@ -94,7 +94,7 @@ func ArsipFileLMSDesa(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(body)
 }
 
-func LogFileLMSDesa(ctx *fiber.Ctx) error {
+func LogFileMeeting(ctx *fiber.Ctx) error {
 	var h model.Secret
 	var body model.LogInfo
 	err := ctx.ReqHeaderParser(&h)

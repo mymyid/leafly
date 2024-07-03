@@ -15,5 +15,6 @@ func Web(page *fiber.App) {
 
 	page.Post("/arsip/gambar/lmsdesa", controller.ArsipGambarLMSDesa)
 	page.Post("/arsip/file/lmsdesa", controller.ArsipFileLMSDesa)
+	page.Post("/arsip/file/logmeeting", controller.LogFileMeeting)
 
 }
