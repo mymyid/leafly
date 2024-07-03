@@ -122,7 +122,7 @@ func LogFileMeeting(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
 	// Call GithubUpload with the file header
-	content, response, _, err := ghupload.GithubUploadFile(config.GHCreds, body.Base64Str, body.RepoOrg, body.RepoName, path, filepath.Ext(body.FileName), false)
+	content, response, _, err := ghupload.Base64toFile(config.GHCreds, body.Base64Str, body.RepoOrg, body.RepoName, path, body.FileName, true)
 	if err != nil {
 		body.Error = err.Error()
 		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
