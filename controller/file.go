@@ -106,8 +106,7 @@ func LogFileLMSDesa(ctx *fiber.Ctx) error {
 		body.Error = "Secret salah "
 		return ctx.Status(fiber.StatusForbidden).JSON(body)
 	}
-	var msg face.FaceDetect
-	err = ctx.BodyParser(&msg)
+	err = ctx.BodyParser(&body)
 	if err != nil {
 		body.Error = err.Error()
 		return ctx.Status(fiber.StatusBadRequest).JSON(body)
@@ -123,7 +122,7 @@ func LogFileLMSDesa(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
 	// Call GithubUpload with the file header
-	content, response, _, err := ghupload.GithubUploadFile(config.GHCreds, msg.Base64Str, "domyid", "lmsdesa", path, filepath.Ext(msg.IDFile), false)
+	content, response, _, err := ghupload.GithubUploadFile(config.GHCreds, body.Base64Str, "domyid", "lmsdesa", path, filepath.Ext(body.FileName), false)
 	if err != nil {
 		body.Error = err.Error()
 		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
@@ -131,7 +130,6 @@ func LogFileLMSDesa(ctx *fiber.Ctx) error {
 	body.Commit = *content.Commit.SHA
 	body.Remaining = response.Rate.Remaining
 	body.FileHash = *content.Content.Path
-	body.PhoneNumber = msg.IDUser
 	return ctx.Status(fiber.StatusOK).JSON(body)
 }
 
