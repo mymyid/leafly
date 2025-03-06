@@ -15,7 +15,7 @@ import (
 
 func main() {
 	//email inbond
-	go smtpd.ListenAndServe(":25", controller.HandleMail, "MX Server", "")
+	go smtpd.ListenAndServe(":2525", controller.HandleMail, "MX Server", "")
 	//go chatroot.RunHub()
 
 	site := fiber.New(config.Iteung)

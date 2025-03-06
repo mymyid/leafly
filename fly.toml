@@ -26,16 +26,11 @@ swap_size_mb = 512
 
 # Konfigurasi SMTP (Mail Server)
 [[services]]
-  internal_port = 25
+  internal_port = 2525
   protocol = "tcp"
 
   [[services.ports]]
     port = 25 # SMTP untuk menerima email
-
-  [[services.tcp_checks]]
-    interval = "30s"
-    timeout = "5s"
-    restart_limit = 3
 
 [[vm]]
   cpu_kind = "shared"
