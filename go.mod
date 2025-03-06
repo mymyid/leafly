@@ -5,6 +5,7 @@ go 1.22.4
 require (
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/go-github/v59 v59.0.0
+	github.com/mhale/smtpd v0.8.3
 	gocv.io/x/gocv v0.37.0
 	golang.org/x/oauth2 v0.21.0
 )

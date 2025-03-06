@@ -12,6 +12,8 @@ swap_size_mb = 512
 
 [env]
   PORT = "8080"
+  MAIL_DOMAIN = "lea.fly.dev"
+  MAIL_PORT = "25"
 
 [http_service]
   internal_port = 8080
@@ -21,6 +23,19 @@ swap_size_mb = 512
   min_machines_running = 1
   max_machines_running = 1
   processes = ["app"]
+
+# Konfigurasi SMTP (Mail Server)
+[[services]]
+  internal_port = 25
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 25 # SMTP untuk menerima email
+
+  [[services.tcp_checks]]
+    interval = "30s"
+    timeout = "5s"
+    restart_limit = 3
 
 [[vm]]
   cpu_kind = "shared"
