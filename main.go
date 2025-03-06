@@ -15,11 +15,7 @@ import (
 
 func main() {
 	//email inbond
-	log.Println("SMTP MX Server berjalan di port 25...")
-	err := smtpd.ListenAndServe(":25", controller.HandleMail, "MX Server", "")
-	if err != nil {
-		log.Fatal(err)
-	}
+	go smtpd.ListenAndServe(":25", controller.HandleMail, "MX Server", "")
 	//go chatroot.RunHub()
 
 	site := fiber.New(config.Iteung)
