@@ -7,7 +7,6 @@ toolchain go1.23.4
 require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/google/go-github/v59 v59.0.0
-	github.com/mhale/smtpd v0.8.3
 	gocv.io/x/gocv v0.40.0
 	golang.org/x/oauth2 v0.28.0
 )

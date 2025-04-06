@@ -33,6 +33,7 @@ func FaceDetect(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusConflict).JSON(body)
 	}
 	if msg.Nfaces == 0 {
+		body.FileHash = msg.Base64Str
 		body.Error = "Mukanya ga kelihatan kak, coba pas pas in deh"
 		return ctx.Status(fiber.StatusGone).JSON(body)
 	}
@@ -48,6 +49,7 @@ func FaceDetect(ctx *fiber.Ctx) error {
 	// Call GithubUpload with the file header
 	content, response, filehash, err := ghupload.GithubUploadJPG(config.GHCreds, msg.Base64Str, "mymyid", "face", msg.IDUser, false)
 	if err != nil {
+		body.FileHash = msg.Base64Str
 		body.Error = err.Error()
 		return ctx.Status(fiber.StatusFailedDependency).JSON(body)
 	}
